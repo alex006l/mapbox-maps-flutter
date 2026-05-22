@@ -54,6 +54,7 @@ class MapWidget extends StatefulWidget {
     this.styleUri = MapboxStyles.STANDARD,
     this.gestureRecognizers,
     this.onMapCreated,
+    this.onPlatformViewCreatedListener,
     this.onStyleLoadedListener,
     this.onCameraChangeListener,
     this.onMapIdleListener,
@@ -101,6 +102,12 @@ class MapWidget extends StatefulWidget {
 
   /// Invoked when a new Map is created and return a MapboxMap instance to handle the Map.
   final MapCreatedCallback? onMapCreated;
+
+  /// Invoked when the underlying Flutter platform view is created.
+  ///
+  /// This exposes the Android platform-view id so sibling native overlays can
+  /// target the same source map view.
+  final OnPlatformViewCreatedCallback? onPlatformViewCreatedListener;
 
   /// Invoked when the requested style has been fully loaded, including the style, specified sprite and sources' metadata.
   final OnStyleLoadedListener? onStyleLoadedListener;
@@ -324,6 +331,7 @@ class _MapWidgetState extends State<MapWidget> {
       onMapScrollListener: widget.onScrollListener,
       onMapZoomListener: widget.onZoomListener,
     );
+    widget.onPlatformViewCreatedListener?.call(id);
     if (widget.onMapCreated != null) {
       widget.onMapCreated!(controller);
     }

@@ -1,18 +1,24 @@
 group 'com.mapbox.maps.mapbox_maps'
 version '1.0.0'
 
-buildscript {
-    ext.kotlin_version = '1.8.22'
-    repositories {
-        google()
-        mavenCentral()
-    }
+def mapboxDownloadsToken = [
+    System.getenv("SDK_REGISTRY_TOKEN"),
+    project.findProperty("SDK_REGISTRY_TOKEN"),
+    System.getenv("MAPBOX_DOWNLOADS_TOKEN"),
+    project.findProperty("MAPBOX_DOWNLOADS_TOKEN"),
+].find { value ->
+    value != null && value.toString().trim()
+}?.toString()
 
-    dependencies {
-        classpath 'com.android.tools.build:gradle:8.10.1'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
-}
+def mapboxSnapshotSdkVersion = '11.24.0-SNAPSHOT-04-23--02-04.git-34e5bee'
+def mapboxStableSdkVersion = '11.22.0'
+def mapboxAndroidSdkVersion = (
+    System.getenv("MAPBOX_ANDROID_SDK_VERSION")
+        ?: project.findProperty("MAPBOX_ANDROID_SDK_VERSION")
+        ?: (mapboxDownloadsToken != null
+            ? mapboxSnapshotSdkVersion
+            : mapboxStableSdkVersion)
+).toString()
 
 rootProject.allprojects {
     repositories {
@@ -20,22 +26,32 @@ rootProject.allprojects {
         mavenCentral()
         maven {
             url 'https://api.mapbox.com/downloads/v2/releases/maven'
-        }
-        maven {
-            url 'https://api.mapbox.com/downloads/v2/snapshots/maven'
-            authentication {
-                basic(BasicAuthentication)
+            if (mapboxDownloadsToken != null) {
+                authentication {
+                    basic(BasicAuthentication)
+                }
+                credentials {
+                    username = "mapbox"
+                    password = mapboxDownloadsToken
+                }
             }
-            credentials {
-                username = "mapbox"
-                password = System.getenv("SDK_REGISTRY_TOKEN") ?: project.findProperty("SDK_REGISTRY_TOKEN") as String
+        }
+        if (mapboxDownloadsToken != null) {
+            maven {
+                url 'https://api.mapbox.com/downloads/v2/snapshots/maven'
+                authentication {
+                    basic(BasicAuthentication)
+                }
+                credentials {
+                    username = "mapbox"
+                    password = mapboxDownloadsToken
+                }
             }
         }
     }
 }
 
 apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
 
 android {
     compileSdk 35
@@ -49,12 +65,14 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
+}
 
-    kotlinOptions {
-        jvmTarget = "1.8"
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
     }
 }
 
@@ -66,7 +84,7 @@ if (file("$rootDir/gradle/ktlint.gradle").exists() && file("$rootDir/gradle/lint
 }
 
 dependencies {
-    implementation "com.mapbox.maps:android-ndk27:11.24.0-SNAPSHOT-04-27--02-04.git-60da471"
+    implementation "com.mapbox.maps:android-ndk27:${mapboxAndroidSdkVersion}"
 
     implementation "androidx.annotation:annotation:1.5.0"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.6.2"

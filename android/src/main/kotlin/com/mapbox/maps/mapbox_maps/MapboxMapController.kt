@@ -93,6 +93,7 @@ class FlutterMapView : MapView {
 
 class MapboxMapController(
   context: Context,
+  private val platformViewId: Int,
   mapInitOptions: MapInitOptions,
   private val lifecycleProvider: MapboxMapsPlugin.LifecycleProvider,
   messenger: BinaryMessenger,
@@ -199,6 +200,7 @@ class MapboxMapController(
     val mapboxMap = mapView.mapboxMap
     this.mapView = mapView
     this.mapboxMap = mapboxMap
+    MapboxMapViewRegistry.register(platformViewId, mapView)
     eventHandler = MapboxEventHandler(mapboxMap.styleManager, messenger, eventTypes, this.channelSuffix)
     styleController = StyleController(context, mapboxMap)
     cameraController = CameraController(mapboxMap, context)
@@ -284,6 +286,7 @@ class MapboxMapController(
       return
     }
 
+    MapboxMapViewRegistry.unregister(platformViewId)
     eventHandler.dispose()
     lifecycleHelper?.dispose()
     lifecycleHelper = null

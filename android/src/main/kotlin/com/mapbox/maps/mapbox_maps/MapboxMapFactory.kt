@@ -48,6 +48,7 @@ class MapboxMapFactory(
 
     return MapboxMapController(
       context,
+      viewId,
       mapInitOptions,
       lifecycleProvider,
       messenger,

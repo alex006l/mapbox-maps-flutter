@@ -1,4 +1,4 @@
-part of mapbox_maps_flutter;
+part of '../../../mapbox_maps_flutter.dart';
 
 /// A base class for defining custom viewport transitions.
 ///

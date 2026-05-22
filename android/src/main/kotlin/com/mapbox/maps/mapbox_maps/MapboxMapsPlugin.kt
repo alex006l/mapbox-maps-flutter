@@ -37,6 +37,12 @@ class MapboxMapsPlugin : FlutterPlugin, ActivityAware {
           }
         )
       )
+    flutterPluginBinding
+      .platformViewRegistry
+      .registerViewFactory(
+        "plugins.flutter.io/mapbox_maps_blur_view",
+        MapboxNativeBlurViewFactory()
+      )
     setupStaticChannels(flutterPluginBinding.applicationContext, flutterPluginBinding.binaryMessenger, flutterPluginBinding.flutterAssets)
   }
 

@@ -28,6 +28,7 @@ part 'src/annotation/view_annotation/view_annotation_manager.dart';
 part 'src/annotation/view_annotation/widget_rasterizer.dart';
 part 'src/callbacks.dart';
 part 'src/events.dart';
+part 'src/mapbox_native_blur_view.dart';
 part 'src/map_widget.dart';
 part 'src/mapbox_map.dart';
 part 'src/mapbox_maps_options.dart';
